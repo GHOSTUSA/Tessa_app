@@ -8,6 +8,9 @@
     "scheme": "autismapp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "extra": {
+      "convertApiToken": "demo"
+    },
     "ios": {
       "supportsTablet": true
     },

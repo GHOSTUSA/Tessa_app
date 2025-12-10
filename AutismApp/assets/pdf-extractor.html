@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script>
+      document.addEventListener("message", async (event) => {
+        const base64 = event.data;
+
+        // Convertir base64 → Uint8Array
+        const raw = atob(base64);
+        const len = raw.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) bytes[i] = raw.charCodeAt(i);
+
+        const pdf = await pdfjsLib.getDocument({ data: bytes }).promise;
+
+        let finalText = "";
+
+        for (let i = 1; i <= pdf.numPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          finalText += content.items.map((t) => t.str).join(" ") + "\n\n";
+        }
+
+        window.ReactNativeWebView.postMessage(finalText);
+      });
+    </script>
+  </body>
+</html>

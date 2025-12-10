@@ -35,9 +35,10 @@ export default function TextPdfScreen() {
         const file = result.assets[0];
         setFileName(file.name);
 
-        // Extraire le texte du PDF
-        const text = await extractTextFromPdf(file.uri);
-        setExtractedText(text);
+        const resulte = await extractTextFromPdf(file.uri);
+        if (resulte !== null) {
+          setExtractedText(resulte);
+        }
       }
     } catch (error) {
       console.error("Erreur lors de l'extraction:", error);
@@ -88,7 +89,13 @@ export default function TextPdfScreen() {
 
           <ScrollView style={styles.textContainer}>
             {extractedText ? (
-              <Text style={styles.extractedText}>{extractedText}</Text>
+              <Text
+                style={styles.extractedText}
+                selectable={true}
+                selectTextOnFocus={true}
+              >
+                {extractedText}
+              </Text>
             ) : (
               <Text style={styles.placeholder}>
                 Le texte extrait apparaîtra ici...
