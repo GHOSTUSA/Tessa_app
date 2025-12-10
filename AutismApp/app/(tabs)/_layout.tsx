@@ -36,9 +36,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="carte_sensorielle"
+        name="pdfInput"
         options={{
-          title: "Carte sensorielle",
+          title: "PdfInput",
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="house.fill" color={color} />
           ),

@@ -1,5 +1,6 @@
 import * as FileSystem from "expo-file-system";
 import { makeCallToGemini } from "./gemini-api-call";
+import { makeCallToOpenAI } from "./openia-api-call";
 
 const API_TOKEN = process.env.EXPO_PUBLIC_CONVERT_API_TOKEN;
 

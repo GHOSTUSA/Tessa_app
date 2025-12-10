@@ -13,13 +13,11 @@ import { Link } from "expo-router";
 export default function TabTwoScreen() {
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: "#D0D0D0", dark: "#353636" }}
+      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
       headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+        <Image
+          source={require("@/assets/images/MainStyleIndex.png")}
+          style={styles.reactLogo}
         />
       }
     >
@@ -67,10 +65,11 @@ export default function TabTwoScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerImage: {
-    color: "#808080",
-    bottom: -90,
-    left: -35,
+  reactLogo: {
+    height: 488,
+    width: 390,
+    bottom: 0,
+    left: 0,
     position: "absolute",
   },
   titleContainer: {
