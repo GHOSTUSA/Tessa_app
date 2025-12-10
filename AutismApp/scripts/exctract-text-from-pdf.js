@@ -33,8 +33,13 @@ export async function extractTextFromPdf(uri) {
 
     const base64Txt = result.Files[0].FileData;
 
-    // Décodage base64 → texte
-    const decodedText = atob(base64Txt);
+    // Décodage base64 → texte UTF-8
+    const binaryString = atob(base64Txt);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    const decodedText = new TextDecoder("utf-8").decode(bytes);
 
     makeCallToGemini(decodedText);
 
