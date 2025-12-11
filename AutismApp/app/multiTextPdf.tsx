@@ -17,6 +17,7 @@ import * as DocumentPicker from "expo-document-picker";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { extractTextFromPdf } from "../scripts/exctract-text-from-pdf";
+import { makeCallToGemini } from "../scripts/gemini-api-call";
 
 interface PdfFile {
   id: string;
@@ -31,6 +32,8 @@ export default function MultiTextPdfScreen() {
   const [selectedPdfs, setSelectedPdfs] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [extractingId, setExtractingId] = useState<string | null>(null);
+  const [geminiResponse, setGeminiResponse] = useState<string>("");
+  const [isGeminiLoading, setIsGeminiLoading] = useState(false);
 
   const pickAndExtractPdf = async () => {
     try {
@@ -112,6 +115,41 @@ export default function MultiTextPdfScreen() {
   const clearAll = () => {
     setPdfFiles([]);
     setSelectedPdfs([]);
+    setGeminiResponse("");
+  };
+
+  const sendToGemini = async () => {
+    if (selectedPdfs.length === 0) {
+      Alert.alert(
+        "Aucun PDF sélectionné",
+        "Veuillez sélectionner au moins un PDF pour l'analyser avec Gemini"
+      );
+      return;
+    }
+
+    try {
+      setIsGeminiLoading(true);
+      const concatenatedText = getConcatenatedText();
+
+      if (!concatenatedText.trim()) {
+        Alert.alert(
+          "Aucun texte",
+          "Les PDFs sélectionnés ne contiennent pas de texte à analyser"
+        );
+        return;
+      }
+
+      const response = await makeCallToGemini(concatenatedText);
+      setGeminiResponse(response);
+    } catch (error) {
+      console.error("Erreur lors de l'appel Gemini:", error);
+      Alert.alert(
+        "Erreur Gemini",
+        "Impossible d'analyser le texte avec Gemini. Vérifiez votre configuration API."
+      );
+    } finally {
+      setIsGeminiLoading(false);
+    }
   };
 
   const getConcatenatedText = () => {
@@ -245,8 +283,40 @@ export default function MultiTextPdfScreen() {
                   .map((pdf) => pdf.name)
                   .join(", ")}
               </ThemedText>
+              <TouchableOpacity
+                style={[
+                  styles.geminiButton,
+                  isGeminiLoading && styles.geminiButtonDisabled,
+                ]}
+                onPress={sendToGemini}
+                disabled={isGeminiLoading}
+              >
+                {isGeminiLoading ? (
+                  <ActivityIndicator color="white" size="small" />
+                ) : (
+                  <Text style={styles.geminiButtonText}>
+                    🤖 Analyser avec Gemini
+                  </Text>
+                )}
+              </TouchableOpacity>
             </View>
           )}
+
+          {geminiResponse ? (
+            <View style={styles.geminiResponseContainer}>
+              <ThemedText style={styles.geminiResponseTitle}>
+                Analyse Gemini :
+              </ThemedText>
+              <ScrollView
+                style={styles.geminiResponseScroll}
+                nestedScrollEnabled
+              >
+                <Text style={styles.geminiResponseText} selectable={true}>
+                  {geminiResponse}
+                </Text>
+              </ScrollView>
+            </View>
+          ) : null}
 
           <ScrollView style={styles.textContainer}>
             {selectedPdfs.length > 0 ? (
@@ -472,5 +542,48 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 14,
     color: "#666",
+  },
+  geminiButton: {
+    backgroundColor: "#4285F4",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 25,
+    marginTop: 12,
+    alignSelf: "center",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 180,
+  },
+  geminiButtonDisabled: {
+    backgroundColor: "#9E9E9E",
+  },
+  geminiButtonText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  geminiResponseContainer: {
+    backgroundColor: "#F3E5F5",
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "#CE93D8",
+    maxHeight: 200,
+  },
+  geminiResponseTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#7B1FA2",
+    marginBottom: 10,
+  },
+  geminiResponseScroll: {
+    maxHeight: 140,
+  },
+  geminiResponseText: {
+    fontSize: 14,
+    lineHeight: 20,
+    color: "#4A148C",
   },
 });

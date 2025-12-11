@@ -1,16 +1,133 @@
 import { Image } from "expo-image";
-import { Platform, StyleSheet } from "react-native";
+import React, { useState } from "react";
+import {
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Alert,
+} from "react-native";
 
-import { Collapsible } from "@/components/ui/collapsible";
-import { ExternalLink } from "@/components/external-link";
 import ParallaxScrollView from "@/components/parallax-scroll-view";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { IconSymbol } from "@/components/ui/icon-symbol";
 import { Fonts } from "@/constants/theme";
-import { Link } from "expo-router";
 
-export default function TabTwoScreen() {
+const moods = [
+  { id: 1, name: "😊 Joyeux", emoji: "😊", color: "#FFD700" },
+  { id: 2, name: "😔 Triste", emoji: "😔", color: "#87CEEB" },
+  { id: 3, name: "😤 Frustré", emoji: "😤", color: "#FF6B6B" },
+  { id: 4, name: "😰 Anxieux", emoji: "😰", color: "#DDA0DD" },
+  { id: 5, name: "😴 Fatigué", emoji: "😴", color: "#F0E68C" },
+  { id: 6, name: "😌 Calme", emoji: "😌", color: "#98FB98" },
+];
+
+const energyLevels = [
+  { id: 1, name: "🔋 Plein d'énergie", icon: "🔋", color: "#32CD32" },
+  { id: 2, name: "⚡ Énergique", icon: "⚡", color: "#FFD700" },
+  { id: 3, name: "🟡 Modéré", icon: "🟡", color: "#FFA500" },
+  { id: 4, name: "🔶 Faible", icon: "🔶", color: "#FF6347" },
+  { id: 5, name: "🪫 Épuisé", icon: "🪫", color: "#B22222" },
+];
+
+const getAdvice = (mood: any, energy: any) => {
+  if (!mood || !energy) return null;
+
+  // Conseils basés sur la combinaison humeur/énergie
+  const adviceMap: { [key: string]: string } = {
+    "1-1":
+      "C'est parfait ! Profitez de cette énergie positive pour faire des activités que vous aimez.",
+    "1-2":
+      "Belle humeur et bonne énergie ! C'est le moment idéal pour socialiser ou essayer quelque chose de nouveau.",
+    "1-3":
+      "Vous êtes de bonne humeur, prenez le temps de savourer ce moment avec des activités relaxantes.",
+    "1-4":
+      "Malgré la fatigue, votre bonne humeur est précieuse. Optez pour des activités douces qui vous font plaisir.",
+    "1-5":
+      "Même épuisé(e), vous gardez le sourire ! Reposez-vous en faisant quelque chose qui vous réconforte.",
+
+    "2-1":
+      "Vous avez de l'énergie malgré la tristesse. Canalisez-la dans une activité physique douce ou créative.",
+    "2-2":
+      "Un peu de mouvement peut aider à améliorer votre humeur. Essayez une promenade ou de la musique.",
+    "2-3":
+      "Prenez soin de vous en douceur. Un bain chaud ou un livre peuvent vous réconforter.",
+    "2-4":
+      "La tristesse et la fatigue sont difficiles. Contactez un proche ou pratiquez la respiration profonde.",
+    "2-5":
+      "Moment difficile. Reposez-vous, hydratez-vous et n'hésitez pas à demander de l'aide.",
+
+    "3-1":
+      "Cette énergie peut vous aider à évacuer la frustration. Essayez le sport ou exprimer vos émotions.",
+    "3-2":
+      "Canalisez cette frustration positivement : rangement, ménage, ou activité physique.",
+    "3-3":
+      "Prenez du recul avec des exercices de respiration ou un moment au calme.",
+    "3-4":
+      "Frustration et fatigue ne font pas bon ménage. Identifiez la source et faites une pause.",
+    "3-5":
+      "Trop de frustration vous épuise. Accordez-vous une vraie pause et de la bienveillance.",
+
+    "4-1":
+      "L'anxiété avec de l'énergie peut être canalisée : exercice doux, rangement, ou activité manuelle.",
+    "4-2":
+      "Utilisez cette énergie pour des activités apaisantes : yoga, dessin, ou musique douce.",
+    "4-3":
+      "Pratiquez la cohérence cardiaque ou la méditation pour apaiser l'anxiété.",
+    "4-4":
+      "Anxiété et fatigue sont épuisantes. Techniques de relaxation et repos sont prioritaires.",
+    "4-5":
+      "L'épuisement amplifie l'anxiété. Repos complet et éventuellement aide professionnelle.",
+
+    "5-1":
+      "Paradoxe fatigue/énergie ? Peut-être de l'excitation nerveuse. Privilégiez le calme.",
+    "5-2":
+      "Fatigue mais encore de l'énergie : activités calmes comme lecture ou podcasts.",
+    "5-3":
+      "Fatigue modérée : accordez-vous des micro-pauses et des activités ressourçantes.",
+    "5-4": "Grande fatigue : repos, hydratation et sommeil sont vos priorités.",
+    "5-5":
+      "Épuisement total : arrêtez-vous, reposez-vous complètement. Demandez de l'aide si nécessaire.",
+
+    "6-1":
+      "État idéal ! Profitez de ce calme énergique pour des activités créatives ou sociales.",
+    "6-2":
+      "Calme et énergique : parfait pour apprendre quelque chose de nouveau ou aider les autres.",
+    "6-3":
+      "Belle sérénité : maintenez cet état avec des activités qui vous nourrissent.",
+    "6-4":
+      "Calme mais fatigué(e) : repos actif avec méditation ou lecture douce.",
+    "6-5":
+      "Calme malgré l'épuisement : votre sagesse vous guide vers le repos nécessaire.",
+  };
+
+  return (
+    adviceMap[`${mood.id}-${energy.id}`] ||
+    "Prenez soin de vous et écoutez vos besoins."
+  );
+};
+
+export default function MoodTrackerScreen() {
+  const [selectedMood, setSelectedMood] = useState<any>(null);
+  const [selectedEnergy, setSelectedEnergy] = useState<any>(null);
+  const [showAdvice, setShowAdvice] = useState(false);
+
+  const handleGetAdvice = () => {
+    if (selectedMood && selectedEnergy) {
+      setShowAdvice(true);
+    } else {
+      Alert.alert(
+        "Sélection incomplète",
+        "Veuillez sélectionner votre humeur ET votre niveau d'énergie"
+      );
+    }
+  };
+
+  const resetSelection = () => {
+    setSelectedMood(null);
+    setSelectedEnergy(null);
+    setShowAdvice(false);
+  };
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
@@ -28,38 +145,88 @@ export default function TabTwoScreen() {
             fontFamily: Fonts.rounded,
           }}
         >
-          PdfInput is deprecated
+          Comment vous sentez-vous ?
         </ThemedText>
       </ThemedView>
-      <ThemedText>Section d'échange</ThemedText>
-      <Collapsible title="Vous pouvez échanger avec d'autres utilisateurs ici.">
-        <Link href="/chat">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Discuter avec des Mentors</ThemedText>
-          </Link.Trigger>
-        </Link>
-      </Collapsible>
-      <Collapsible title="Ou alors avec votre assitant virtuel.">
-        <Link href="/textPdf">
-          <Link.Trigger>
-            <ThemedText type="subtitle">
-              Discuter avec votre assistant virtuel
-            </ThemedText>
-          </Link.Trigger>
-        </Link>
-      </Collapsible>
 
-      {Platform.select({
-        ios: (
-          <ThemedText>
-            The{" "}
-            <ThemedText type="defaultSemiBold">
-              components/ParallaxScrollView.tsx
-            </ThemedText>{" "}
-            component provides a parallax effect for the header image.
+      <ThemedView style={styles.sectionContainer}>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
+          😊 Votre humeur du moment
+        </ThemedText>
+        <View style={styles.optionsGrid}>
+          {moods.map((mood) => (
+            <TouchableOpacity
+              key={mood.id}
+              style={[
+                styles.optionCard,
+                { backgroundColor: mood.color + "30" },
+                selectedMood?.id === mood.id && {
+                  borderColor: mood.color,
+                  borderWidth: 3,
+                  backgroundColor: mood.color + "50",
+                },
+              ]}
+              onPress={() => setSelectedMood(mood)}
+            >
+              <ThemedText style={styles.emoji}>{mood.emoji}</ThemedText>
+              <ThemedText style={styles.optionText}>{mood.name}</ThemedText>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ThemedView>
+
+      <ThemedView style={styles.sectionContainer}>
+        <ThemedText type="subtitle" style={styles.sectionTitle}>
+          ⚡ Votre niveau d'énergie
+        </ThemedText>
+        <View style={styles.optionsGrid}>
+          {energyLevels.map((energy) => (
+            <TouchableOpacity
+              key={energy.id}
+              style={[
+                styles.optionCard,
+                { backgroundColor: energy.color + "30" },
+                selectedEnergy?.id === energy.id && {
+                  borderColor: energy.color,
+                  borderWidth: 3,
+                  backgroundColor: energy.color + "50",
+                },
+              ]}
+              onPress={() => setSelectedEnergy(energy)}
+            >
+              <ThemedText style={styles.emoji}>{energy.icon}</ThemedText>
+              <ThemedText style={styles.optionText}>{energy.name}</ThemedText>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ThemedView>
+
+      <ThemedView style={styles.actionContainer}>
+        <TouchableOpacity style={styles.adviceButton} onPress={handleGetAdvice}>
+          <ThemedText style={styles.buttonText}>
+            💡 Obtenir un conseil personnalisé
           </ThemedText>
-        ),
-      })}
+        </TouchableOpacity>
+
+        {showAdvice && selectedMood && selectedEnergy && (
+          <ThemedView style={styles.adviceContainer}>
+            <ThemedText type="subtitle" style={styles.adviceTitle}>
+              Votre conseil personnalisé :
+            </ThemedText>
+            <ThemedText style={styles.adviceText}>
+              {getAdvice(selectedMood, selectedEnergy)}
+            </ThemedText>
+            <TouchableOpacity
+              style={styles.resetButton}
+              onPress={resetSelection}
+            >
+              <ThemedText style={styles.resetButtonText}>
+                🔄 Nouvelle évaluation
+              </ThemedText>
+            </TouchableOpacity>
+          </ThemedView>
+        )}
+      </ThemedView>
     </ParallaxScrollView>
   );
 }
@@ -73,7 +240,87 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   titleContainer: {
+    alignItems: "center",
+    marginBottom: 30,
+  },
+  sectionContainer: {
+    marginBottom: 25,
+  },
+  sectionTitle: {
+    textAlign: "center",
+    marginBottom: 15,
+    fontSize: 18,
+  },
+  optionsGrid: {
     flexDirection: "row",
-    gap: 8,
+    flexWrap: "wrap",
+    justifyContent: "space-between",
+    gap: 10,
+  },
+  optionCard: {
+    width: "48%",
+    padding: 15,
+    borderRadius: 12,
+    alignItems: "center",
+    borderWidth: 2,
+    borderColor: "transparent",
+    marginBottom: 10,
+  },
+  emoji: {
+    fontSize: 30,
+    marginBottom: 8,
+  },
+  optionText: {
+    textAlign: "center",
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  actionContainer: {
+    alignItems: "center",
+    marginTop: 20,
+  },
+  adviceButton: {
+    backgroundColor: "#007AFF",
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 25,
+    marginBottom: 20,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  adviceContainer: {
+    backgroundColor: "#F0F8FF",
+    padding: 20,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: "#B0C4DE",
+    width: "100%",
+  },
+  adviceTitle: {
+    textAlign: "center",
+    marginBottom: 15,
+    color: "#4169E1",
+  },
+  adviceText: {
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  resetButton: {
+    backgroundColor: "#FF6B6B",
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 20,
+    alignSelf: "center",
+  },
+  resetButtonText: {
+    color: "white",
+    fontSize: 14,
+    fontWeight: "500",
   },
 });
