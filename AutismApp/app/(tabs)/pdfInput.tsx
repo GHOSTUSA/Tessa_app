@@ -159,10 +159,10 @@ Peux-tu me donner un conseil bienveillant et pratique pour gérer cette situatio
   };
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
+      headerBackgroundColor={{ light: "#f5f4f2", dark: "#f5f4f2" }}
       headerImage={
         <Image
-          source={require("@/assets/images/MainStyleIndex.png")}
+          source={require("@/assets/svg/Logo.svg")}
           style={styles.reactLogo}
         />
       }
@@ -285,8 +285,8 @@ Peux-tu me donner un conseil bienveillant et pratique pour gérer cette situatio
 
 const styles = StyleSheet.create({
   reactLogo: {
-    height: 488,
-    width: 390,
+    height: 238,
+    width: 370,
     bottom: 0,
     left: 0,
     position: "absolute",
