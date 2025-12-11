@@ -6,12 +6,14 @@ import {
   TouchableOpacity,
   View,
   Alert,
+  ActivityIndicator,
 } from "react-native";
 
 import ParallaxScrollView from "@/components/parallax-scroll-view";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Fonts } from "@/constants/theme";
+import { makeCallToGemini } from "../../scripts/gemini-api-call";
 
 const moods = [
   { id: 1, name: "😊 Joyeux", emoji: "😊", color: "#FFD700" },
@@ -108,25 +110,52 @@ const getAdvice = (mood: any, energy: any) => {
 };
 
 export default function MoodTrackerScreen() {
-  const [selectedMood, setSelectedMood] = useState<any>(null);
-  const [selectedEnergy, setSelectedEnergy] = useState<any>(null);
+  const [selectedAutistMood, setSelectedAutistMood] = useState<any>(null);
+  const [selectedCompanionMood, setSelectedCompanionMood] = useState<any>(null);
   const [showAdvice, setShowAdvice] = useState(false);
+  const [geminiAdvice, setGeminiAdvice] = useState<string>("");
+  const [isGeminiLoading, setIsGeminiLoading] = useState(false);
 
-  const handleGetAdvice = () => {
-    if (selectedMood && selectedEnergy) {
-      setShowAdvice(true);
+  const handleGetAdvice = async () => {
+    if (selectedAutistMood && selectedCompanionMood) {
+      setIsGeminiLoading(true);
+
+      const prompt = `Je suis accompagnant d'une personne autiste. Voici la situation actuelle :
+
+PERSONNE AUTISTE :
+- Humeur : ${selectedAutistMood.name}
+
+ACCOMPAGNANT :
+- Humeur : ${selectedCompanionMood.name}
+
+Peux-tu me donner un conseil bienveillant et pratique pour gérer cette situation ? Le conseil doit tenir compte de l'état des deux personnes et proposer des actions concrètes pour favoriser le bien-être de tous les deux.`;
+
+      try {
+        const advice = await makeCallToGemini(prompt);
+        setGeminiAdvice(advice);
+        setShowAdvice(true);
+      } catch (error) {
+        console.error("Erreur Gemini:", error);
+        Alert.alert(
+          "Erreur",
+          "Impossible d'obtenir un conseil de Gemini. Vérifiez votre configuration API."
+        );
+      } finally {
+        setIsGeminiLoading(false);
+      }
     } else {
       Alert.alert(
         "Sélection incomplète",
-        "Veuillez sélectionner votre humeur ET votre niveau d'énergie"
+        "Veuillez sélectionner l'humeur pour les deux personnes"
       );
     }
   };
 
   const resetSelection = () => {
-    setSelectedMood(null);
-    setSelectedEnergy(null);
+    setSelectedAutistMood(null);
+    setSelectedCompanionMood(null);
     setShowAdvice(false);
+    setGeminiAdvice("");
   };
   return (
     <ParallaxScrollView
@@ -145,77 +174,100 @@ export default function MoodTrackerScreen() {
             fontFamily: Fonts.rounded,
           }}
         >
-          Comment vous sentez-vous ?
+          Évaluation des humeurs
         </ThemedText>
       </ThemedView>
 
-      <ThemedView style={styles.sectionContainer}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
-          😊 Votre humeur du moment
+      {/* Section pour la personne autiste */}
+      <ThemedView style={styles.personSection}>
+        <ThemedText type="subtitle" style={styles.personTitle}>
+          🧠 Personne autiste
         </ThemedText>
-        <View style={styles.optionsGrid}>
-          {moods.map((mood) => (
-            <TouchableOpacity
-              key={mood.id}
-              style={[
-                styles.optionCard,
-                { backgroundColor: mood.color + "30" },
-                selectedMood?.id === mood.id && {
-                  borderColor: mood.color,
-                  borderWidth: 3,
-                  backgroundColor: mood.color + "50",
-                },
-              ]}
-              onPress={() => setSelectedMood(mood)}
-            >
-              <ThemedText style={styles.emoji}>{mood.emoji}</ThemedText>
-              <ThemedText style={styles.optionText}>{mood.name}</ThemedText>
-            </TouchableOpacity>
-          ))}
-        </View>
+
+        <ThemedView style={styles.sectionContainer}>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            😊 Humeur actuelle
+          </ThemedText>
+          <View style={styles.optionsGrid}>
+            {moods.map((mood) => (
+              <TouchableOpacity
+                key={mood.id}
+                style={[
+                  styles.optionCard,
+                  { backgroundColor: mood.color + "30" },
+                  selectedAutistMood?.id === mood.id && {
+                    borderColor: mood.color,
+                    borderWidth: 3,
+                    backgroundColor: mood.color + "50",
+                  },
+                ]}
+                onPress={() => setSelectedAutistMood(mood)}
+              >
+                <ThemedText style={styles.emoji}>{mood.emoji}</ThemedText>
+                <ThemedText style={styles.optionText}>{mood.name}</ThemedText>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ThemedView>
       </ThemedView>
 
-      <ThemedView style={styles.sectionContainer}>
-        <ThemedText type="subtitle" style={styles.sectionTitle}>
-          ⚡ Votre niveau d'énergie
+      {/* Section pour l'accompagnant */}
+      <ThemedView style={styles.personSection}>
+        <ThemedText type="subtitle" style={styles.personTitle}>
+          🤝 Accompagnant
         </ThemedText>
-        <View style={styles.optionsGrid}>
-          {energyLevels.map((energy) => (
-            <TouchableOpacity
-              key={energy.id}
-              style={[
-                styles.optionCard,
-                { backgroundColor: energy.color + "30" },
-                selectedEnergy?.id === energy.id && {
-                  borderColor: energy.color,
-                  borderWidth: 3,
-                  backgroundColor: energy.color + "50",
-                },
-              ]}
-              onPress={() => setSelectedEnergy(energy)}
-            >
-              <ThemedText style={styles.emoji}>{energy.icon}</ThemedText>
-              <ThemedText style={styles.optionText}>{energy.name}</ThemedText>
-            </TouchableOpacity>
-          ))}
-        </View>
+
+        <ThemedView style={styles.sectionContainer}>
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            😊 Votre humeur
+          </ThemedText>
+          <View style={styles.optionsGrid}>
+            {moods.map((mood) => (
+              <TouchableOpacity
+                key={mood.id}
+                style={[
+                  styles.optionCard,
+                  { backgroundColor: mood.color + "30" },
+                  selectedCompanionMood?.id === mood.id && {
+                    borderColor: mood.color,
+                    borderWidth: 3,
+                    backgroundColor: mood.color + "50",
+                  },
+                ]}
+                onPress={() => setSelectedCompanionMood(mood)}
+              >
+                <ThemedText style={styles.emoji}>{mood.emoji}</ThemedText>
+                <ThemedText style={styles.optionText}>{mood.name}</ThemedText>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ThemedView>
       </ThemedView>
 
       <ThemedView style={styles.actionContainer}>
-        <TouchableOpacity style={styles.adviceButton} onPress={handleGetAdvice}>
-          <ThemedText style={styles.buttonText}>
-            💡 Obtenir un conseil personnalisé
-          </ThemedText>
+        <TouchableOpacity
+          style={[
+            styles.adviceButton,
+            isGeminiLoading && styles.adviceButtonDisabled,
+          ]}
+          onPress={handleGetAdvice}
+          disabled={isGeminiLoading}
+        >
+          {isGeminiLoading ? (
+            <ActivityIndicator color="white" size="small" />
+          ) : (
+            <ThemedText style={styles.buttonText}>
+              🤖 Obtenir un conseil Gemini
+            </ThemedText>
+          )}
         </TouchableOpacity>
 
-        {showAdvice && selectedMood && selectedEnergy && (
+        {showAdvice && geminiAdvice && (
           <ThemedView style={styles.adviceContainer}>
             <ThemedText type="subtitle" style={styles.adviceTitle}>
-              Votre conseil personnalisé :
+              Conseil personnalisé de Gemini :
             </ThemedText>
-            <ThemedText style={styles.adviceText}>
-              {getAdvice(selectedMood, selectedEnergy)}
-            </ThemedText>
+            <ThemedText style={styles.adviceText}>{geminiAdvice}</ThemedText>
             <TouchableOpacity
               style={styles.resetButton}
               onPress={resetSelection}
@@ -243,8 +295,23 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 30,
   },
+  personSection: {
+    backgroundColor: "#F8F9FA",
+    padding: 15,
+    marginBottom: 20,
+    borderRadius: 15,
+    borderWidth: 1,
+    borderColor: "#E9ECEF",
+  },
+  personTitle: {
+    textAlign: "center",
+    marginBottom: 20,
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#495057",
+  },
   sectionContainer: {
-    marginBottom: 25,
+    marginBottom: 20,
   },
   sectionTitle: {
     textAlign: "center",
@@ -285,6 +352,9 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderRadius: 25,
     marginBottom: 20,
+  },
+  adviceButtonDisabled: {
+    backgroundColor: "#9E9E9E",
   },
   buttonText: {
     color: "white",
