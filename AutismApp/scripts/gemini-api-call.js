@@ -16,7 +16,7 @@ export async function makeCallToGemini(text) {
       );
     }
 
-    const model = genAI.getGenerativeModel({ model: "gemini-3-pro-preview" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
     // Limiter le texte à 250000 caractères pour éviter de dépasser les limites
     const maxLength = 240000;
