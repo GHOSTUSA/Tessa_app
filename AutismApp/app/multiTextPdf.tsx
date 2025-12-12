@@ -72,18 +72,18 @@ export default function MultiTextPdfScreen() {
             );
           }
         } catch (extractError) {
-          console.error("Erreur extraction:", extractError);
+          console.error("Erreur d'extraction :", extractError);
           Alert.alert(
             "Erreur",
-            `Impossible d'extraire le texte de ${file.name}`
+            `Impossible d'extraire le texte de ${file.name}.`
           );
         } finally {
           setExtractingId(null);
         }
       }
     } catch (error) {
-      console.error("Erreur lors de la sélection:", error);
-      Alert.alert("Erreur", "Impossible de sélectionner le PDF");
+      console.error("Erreur lors de la sélection :", error);
+      Alert.alert("Erreur", "Impossible de sélectionner le PDF.");
     } finally {
       setLoading(false);
     }

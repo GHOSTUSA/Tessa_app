@@ -20,7 +20,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="echange"
         options={{
-          title: "Echange",
+          title: "Gestion PDF",
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="paperplane.fill" color={color} />
           ),
@@ -29,7 +29,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Accueil",
+          title: "Carte",
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="house.fill" color={color} />
           ),
@@ -38,7 +38,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="pdfInput"
         options={{
-          title: "PdfInput",
+          title: "Mood Tracker",
           tabBarIcon: ({ color }) => (
             <IconSymbol size={28} name="house.fill" color={color} />
           ),

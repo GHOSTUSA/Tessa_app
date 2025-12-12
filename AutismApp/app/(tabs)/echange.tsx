@@ -35,16 +35,14 @@ export default function TabTwoScreen() {
       <Collapsible title="Vous pouvez échanger avec d'autres utilisateurs ici.">
         <Link href="/chat">
           <Link.Trigger>
-            <ThemedText type="subtitle">Discuter avec des Mentors</ThemedText>
+            <ThemedText type="subtitle">Discuter avec des mentors</ThemedText>
           </Link.Trigger>
         </Link>
       </Collapsible>
-      <Collapsible title="Ou alors avec votre assitant virtuel.">
+      <Collapsible title="Ajouter des fichiers PDF à analyser.">
         <Link href="/textPdf">
           <Link.Trigger>
-            <ThemedText type="subtitle">
-              Discuter avec votre assistant virtuel
-            </ThemedText>
+            <ThemedText type="subtitle">Ajouter des PDFs</ThemedText>
           </Link.Trigger>
         </Link>
       </Collapsible>

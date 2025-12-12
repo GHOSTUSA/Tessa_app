@@ -37,15 +37,15 @@ export default function TextPdfScreen() {
         setFileName(file.name);
 
         const decodedText = await extractTextFromPdf(file.uri);
-        const resulte = await makeCallToGemini(decodedText);
+        const resultat = await makeCallToGemini(decodedText);
 
-        if (resulte !== null) {
-          setExtractedText(resulte);
+        if (resultat !== null) {
+          setExtractedText(resultat);
         }
       }
     } catch (error) {
-      console.error("Erreur lors de l'extraction:", error);
-      Alert.alert("Erreur", "Impossible d'extraire le texte du PDF");
+      console.error("Erreur lors de l'extraction :", error);
+      Alert.alert("Erreur", "Impossible d'extraire le texte du PDF.");
     } finally {
       setLoading(false);
     }
@@ -73,13 +73,15 @@ export default function TextPdfScreen() {
               {loading ? (
                 <ActivityIndicator color="white" />
               ) : (
-                <Text style={styles.buttonText}>Choisir un PDF</Text>
+                <Text style={styles.buttonText}>Reformuler un PDF</Text>
               )}
             </TouchableOpacity>
 
             <Link href="/multiTextPdf" asChild>
               <TouchableOpacity style={styles.modalButton}>
-                <Text style={styles.buttonText}>Voir pdf</Text>
+                <Text style={styles.buttonText}>
+                  Synthétiser évolution entre PDFs
+                </Text>
               </TouchableOpacity>
             </Link>
 

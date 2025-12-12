@@ -69,12 +69,6 @@ export default function HomeScreen() {
             📄 Extraire texte des PDFs
           </ThemedText>
         </Link>
-
-        <Link href="/modal" asChild>
-          <ThemedText type="subtitle" style={styles.linkText}>
-            📋 Voir les outils
-          </ThemedText>
-        </Link>
       </ThemedView>
     </ParallaxScrollView>
   );
