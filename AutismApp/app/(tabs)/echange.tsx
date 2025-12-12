@@ -28,7 +28,7 @@ export default function TabTwoScreen() {
             fontFamily: Fonts.rounded,
           }}
         >
-          Echange
+          Gestion PDF
         </ThemedText>
       </ThemedView>
       <ThemedText>Section d'échange</ThemedText>
@@ -42,7 +42,7 @@ export default function TabTwoScreen() {
       <Collapsible title="Ajouter des fichiers PDF à analyser.">
         <Link href="/textPdf">
           <Link.Trigger>
-            <ThemedText type="subtitle">Ajouter des PDFs</ThemedText>
+            <ThemedText type="subtitle">Ajouter des PDF</ThemedText>
           </Link.Trigger>
         </Link>
       </Collapsible>

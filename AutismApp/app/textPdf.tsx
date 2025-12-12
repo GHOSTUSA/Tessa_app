@@ -80,7 +80,7 @@ export default function TextPdfScreen() {
             <Link href="/multiTextPdf" asChild>
               <TouchableOpacity style={styles.modalButton}>
                 <Text style={styles.buttonText}>
-                  Synthétiser évolution entre PDFs
+                  Synthétiser évolution entre PDF
                 </Text>
               </TouchableOpacity>
             </Link>

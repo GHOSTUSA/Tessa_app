@@ -295,7 +295,7 @@ export default function MultiTextPdfScreen() {
                   <ActivityIndicator color="white" size="small" />
                 ) : (
                   <Text style={styles.geminiButtonText}>
-                    🤖 Analyser avec Gemini
+                    Analyser avec Gemini
                   </Text>
                 )}
               </TouchableOpacity>
